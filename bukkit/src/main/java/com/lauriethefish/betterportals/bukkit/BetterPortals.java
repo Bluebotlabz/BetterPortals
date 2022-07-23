@@ -49,24 +49,28 @@ public class BetterPortals extends JavaPlugin {
         OperationTimer timer = new OperationTimer();
         saveDefaultConfig();
 
-        if(firstEnable) {
+        if (firstEnable) {
             startup();
-            if(didEnableFail) {return;}
-
-            if(miscConfig.isTestingCommandsEnabled()) {
-                commandTree.registerTestCommands();
+            if (didEnableFail) {
+                return;
             }
-        }   else    {
+
+            /*
+             * if(miscConfig.isTestingCommandsEnabled()) {
+             * commandTree.registerTestCommands();
+             * }
+             */
+        } else {
             reloadConfig();
             loadConfig();
         }
 
-        if(proxyConfig.isEnabled()) {
+        if (proxyConfig.isEnabled()) {
             logger.fine("Proxy is enabled! Initialising connection . . .");
             portalClient.connect();
         }
 
-        if(!firstEnable) {
+        if (!firstEnable) {
             eventRegistrar.onPluginReload();
             portalManager.onReload();
         }
@@ -83,8 +87,9 @@ public class BetterPortals extends JavaPlugin {
     private boolean loadConfig() {
         try {
             configManager.loadValues(getConfig(), this);
-        }   catch(RuntimeException ex) {
-            logger.warning("Failed to reload the config file. Please check your YAML syntax!: %s: %s", ex.getClass().getName(), ex.getMessage());
+        } catch (RuntimeException ex) {
+            logger.warning("Failed to reload the config file. Please check your YAML syntax!: %s: %s",
+                    ex.getClass().getName(), ex.getMessage());
             return false;
         }
         return true;
@@ -101,21 +106,22 @@ public class BetterPortals extends JavaPlugin {
             return;
         }
 
-        if(!loadConfig()) {
+        if (!loadConfig()) {
             didEnableFail = true;
             return;
         }
 
         try {
             portalStorage.loadPortals();
-        } catch(IOException | RuntimeException ex) {
-            getLogger().severe("Failed to load the portals from portals.yml. Did you modify it with an incorrect format?");
+        } catch (IOException | RuntimeException ex) {
+            getLogger()
+                    .severe("Failed to load the portals from portals.yml. Did you modify it with an incorrect format?");
             ex.printStackTrace();
             didEnableFail = true;
             return;
         }
 
-        if(miscConfig.isUpdateCheckEnabled()) {
+        if (miscConfig.isUpdateCheckEnabled()) {
             updateManager.checkForUpdates();
         }
     }
@@ -124,19 +130,19 @@ public class BetterPortals extends JavaPlugin {
         apiImplementation.onDisable();
 
         logger.fine("Performing plugin soft-reload . . .");
-        if(proxyConfig.isEnabled()) {
+        if (proxyConfig.isEnabled()) {
             portalClient.shutDown();
         }
 
         reloadConfig();
-        if(!loadConfig()) {
+        if (!loadConfig()) {
             return;
         }
 
         playerDataManager.onPluginDisable();
         portalManager.onReload();
 
-        if(proxyConfig.isEnabled()) {
+        if (proxyConfig.isEnabled()) {
             portalClient.connect();
         }
         apiImplementation.onEnable();
@@ -145,11 +151,13 @@ public class BetterPortals extends JavaPlugin {
     @Override
     public void onDisable() {
         // We don't want to over-save the portals file if loading it failed
-        if(didEnableFail) {return;}
+        if (didEnableFail) {
+            return;
+        }
 
         try {
             playerDataManager.onPluginDisable();
-        }  catch(RuntimeException ex) {
+        } catch (RuntimeException ex) {
             logger.severe("Error occurred while resetting player views");
             ex.printStackTrace();
         }
@@ -158,25 +166,29 @@ public class BetterPortals extends JavaPlugin {
 
         try {
             portalStorage.savePortals();
-        }   catch(RuntimeException | IOException ex) {
+        } catch (RuntimeException | IOException ex) {
             logger.severe("Error occurred while saving the portals to portals.yml. Check your file permissions!");
             ex.printStackTrace();
         }
 
-        if(portalClient.isConnectionOpen()) {
+        if (portalClient.isConnectionOpen()) {
             portalClient.shutDown();
         }
         logger.fine("Goodbye!");
     }
 
     // Forward these on to the command tree to process all of our commands
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        return commandTree.onGlobalCommand(sender, label, args);
-    }
+    /*
+     * @Override
+     * public boolean onCommand(@NotNull CommandSender sender, @NotNull Command
+     * command, @NotNull String label, String[] args) {
+     * return commandTree.onGlobalCommand(sender, label, args);
+     * }
+     */
 
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+            String[] args) {
         return commandTree.onGlobalTabComplete(sender, label, args);
     }
 }
