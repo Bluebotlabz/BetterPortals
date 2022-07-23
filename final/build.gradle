@@ -19,6 +19,10 @@ archivesBaseName = "${rootProject.name}"
 
 tasks.build.dependsOn tasks.shadowJar
 shadowJar {
+    dependencies {
+        exclude(dependency('com.mojang:brigadier'))
+    }
+
     configurations = [getImplementationConfigurations(project), getImplementationConfigurations(project(':bukkit'))]
 
     relocate 'org.bstats', 'com.lauriethefish.betterportals.dependencies.org.bstats'
@@ -32,6 +36,8 @@ shadowJar {
     relocate 'com.google.j2objc', 'com.lauriethefish.betterportals.dependencies.com.google.j2objc'
     relocate 'com.google.inject', 'com.lauriethefish.betterportals.dependencies.com.google.inject'
     relocate 'com.google.errorprone', 'com.lauriethefish.betterportals.dependencies.com.google.errorprone'
+    
+    relocate 'me.lucko.commodore', 'com.lauriethefish.betterportals.dependencies.commodore'
 
     minimize()
 }
